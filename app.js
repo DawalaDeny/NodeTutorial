@@ -4,5 +4,5 @@ if (amount  < 10){
 }else{
     console.log("Bigger or equal to 10");
 }
-console.log("Hello world")
+console.log("Hello world, test push")
 
