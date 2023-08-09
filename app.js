@@ -1,13 +1,27 @@
-//importeren
-const names = require('./4-leeftijden')
-const getLeeftijden = require('./5-utils')
-const data = require('./6-alternative')
-//console.log(data);
-require('./7-mind-grenade')
-
-//console.log(names)
-//console.log(getLeeftijden)
-
-//getLeeftijden("8");
-//getLeeftijden(names.jan);
-//getLeeftijden(names.zezima);
+const { log } = require('console');
+const { readFile, writeFile } = require ('fs')
+readFile('subfolder/first.txt','utf8', (err,result)=>{
+    if (err){
+        console.log(err);
+        return
+    }else{
+        const first = result;
+        readFile('subfolder/test.txt','utf8', 
+        (err, result)=>{
+            if (err){
+                console.log(err);
+                return
+            }else{
+                const second = result;
+                writeFile('subfolder/resultsync2-txt', 
+                `resultaat 2: ${first}, ${second}`,
+                (err, result)=>{
+                    if (err){
+                        console.log(err);
+                    return;
+                    }
+                    console.log(result);
+                })}
+        })
+    }
+})
