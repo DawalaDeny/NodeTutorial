@@ -1,0 +1,3 @@
+Get-ExecutionPolicy
+Set-ExecutionPolicy RemoteSigned
+Set-ExecutionPolicy Default
