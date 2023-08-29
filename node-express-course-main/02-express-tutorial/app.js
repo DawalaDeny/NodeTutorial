@@ -1,46 +1,40 @@
-const http = require('http');
+const express = require('express');
+const app = express();
+const {products} = require("./data.js")
+const {people} =require('./data.js')
+app.use(express.static("./methods-public"))
+app.use(express.json())
+const fs = require('fs');
 
-const {readFileSync} = require('fs');
-const homePage = readFileSync('./navbar-app/index.html')
-const homeStyles = readFileSync('./navbar-app/styles.css')
-const homeImage = readFileSync('./navbar-app/logo.svg')
-const homeLogic = readFileSync('./navbar-app/browser-app.js')
-
-//request & response
-const server = http.createServer((req, res)=>{
-const url = req.url;
-
-if (url === '/'){
-    res.writeHead(200, {'content-type': 'text/html'});
-    res.write(homePage);
-    res.end();
-}else if(url ==='/styles.css'){
-
-    res.writeHead(200, {'content-type': 'text/css'});
-    res.write(homeStyles);
-    res.end();
+app.get('/', (req, res)=>{
+    res.send('<h1>homepage</h1><a href="/api/products">products</a>');
+})
+app.get('/api/products', (req, res)=>{
+    const newProducts = products.map((product)=>{
+        const id = product.id;
+        const name = product.name;
+        const image = product.image;        
+        return {id:id,name:name,image:image}
+    })
+    res.json(newProducts);
+})
+app.get('/api/people', (req, res)=>{
+    res.json({data:people})
+})
+app.post('/api/people', (req, res)=>{
+    const name = req.body.name
+    if(!name){
+        res.status(400).json({succes:false, msg:"fill in a name"})
+    }else{
+        const newPerson = { id: people.length + 1, name: name };
+        people.push(newPerson);
+        res.status(201).json({success:true, person:name, msg:`hey ${name}`})
+        
     }
-else if(url ==='/logo.svg'){
+    
 
-        res.writeHead(200, {'content-type': 'image/svg+xml'});
-        res.write(homeImage);
-        res.end();
-        }
-else if(url ==='/browser-app.js'){
+})
 
-            res.writeHead(200, {'content-type': 'text/javascript'});
-            res.write(homeLogic);
-            res.end();
-            }
-else if(url ==='/about'){
-
-res.writeHead(200, {'content-type': 'text/html'});
-res.write(`<h1>hello world -- ABOUT</h1>`);
-res.end();
-}else{
-    res.writeHead(404, {'content-type': 'text/html'});
-    res.write(`<h1>Error---- path ${url} doesn't exist</h1>`);
-    res.end();
-}
-});
-server.listen(80);
+app.listen(80, ()=>{
+    console.log("listening on port 80....");
+})
