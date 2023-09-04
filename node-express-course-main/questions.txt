@@ -1,0 +1,10 @@
+06-jobs-api:
+        *// routes
+        app.use("/api/v1/auth", authRouter);
+        app.use("/api/v1/jobs", authenticateUser, jobRouter);
+
+        app.use(notFoundMiddleware);
+        app.use(errorHandlerMiddleware);
+
+        *how can run errorHandlerMiddleware if it's defined behind notFoundMiddleware?
+        *error -> notfound instead of errorhandler, how does it know to run errorhandler?
