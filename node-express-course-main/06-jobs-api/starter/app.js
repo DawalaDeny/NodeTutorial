@@ -1,7 +1,8 @@
 require('dotenv').config();
-require('express-async-errors');
+require('express-async-errors')
 const express = require('express');
 const app = express();
+const YAML = require('yamljs');
 
 //security
 const helmet = require('helmet')
@@ -12,7 +13,7 @@ const rateLimitter = require('express-rate-limit')
 const authRouter = require('./routes/auth');
 const jobRouter = require('./routes/jobs');
 //connectDB
-const db = require('./db/connect')
+const db = require('./db/connect');
 
 const authenticateUser = require('./middleware/authentication')
 
@@ -21,7 +22,8 @@ const notFoundMiddleware = require('./middleware/not-found');
 const errorHandlerMiddleware = require('./middleware/error-handler');
 
 const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('./swagger-output.json'); // Het pad naar je Swagger-specificatiebestand
+const swaggerDocument = YAML.load('./swagger.yml')
+// Het pad naar je Swagger-specificatiebestand
 
 app.set('trust proxy', 1)
 app.use(rateLimitter({
@@ -34,6 +36,7 @@ app.use(helmet())
 app.use(cors())
 app.use(xss())
 
+// Voeg tags toe aan de eindpunten
 
 
 // extra packages
@@ -42,7 +45,7 @@ app.use(xss())
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/jobs", authenticateUser, jobRouter);
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
