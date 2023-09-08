@@ -44,7 +44,7 @@ const login = async (req, res) => {
   }
   // compare password
   const token = user.createJWT()
-  res.status(StatusCodes.OK).json({ user: { email:user.email, lastname:user.lastname, location:user.location
+  res.status(StatusCodes.OK).json({ user: { email:user.email, lastName:user.lastName, location:user.location
     ,name:user.name, token:token}})
 }
 
