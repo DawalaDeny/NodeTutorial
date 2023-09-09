@@ -1,7 +1,8 @@
 const Job = require('../models/Job')
-const { StatusCodes } = require('http-status-codes')
+const { StatusCodes, PERMANENT_REDIRECT } = require('http-status-codes')
 const { BadRequestError, NotFoundError } = require('../errors')
-
+const mongoose = require('mongoose')
+const moment = require('moment')
 const getAllJobs = async (req, res) => {
   const {status, jobType, sort, search} = req.query
   const queryObject = {
@@ -105,6 +106,54 @@ const deleteJob = async (req, res) => {
   }
   res.status(StatusCodes.OK).send()
 }
+const getStats =async (req,res) =>{
+let stats = await Job.aggregate([
+  //mongoose.Types.ObjectId => omdat userId een string is = niet gelijke types.
+{$match:{createdBy:mongoose.Types.ObjectId(req.user.userId)}},
+{$group:{_id:'$status', count:{$sum:1}}}
+
+])
+//formaat wijzigen
+stats = stats.reduce ((acc, curr)=>{
+  const {_id, count} = curr
+  acc[_id] = count
+  return acc
+},{})
+//indien er geen zijn dat je 0 terug geeft
+const defaultStats = {
+  pending:stats.pending || 0,
+  interview:stats.interview || 0,
+  declined:stats.declined || 0,
+}
+
+
+
+  let monthlyApplications = await Job.aggregate([
+    //mongoose.Types.ObjectId => omdat userId een string is = niet gelijke types.
+    { $match: { createdBy: mongoose.Types.ObjectId(req.user.userId) } },
+    {
+      $group: {
+        _id: { year: { $year: '$createdAt' }, month: { $month: '$createdAt' } },
+        count: { $sum: 1 }
+      }
+    },
+    {$sort:{'_id.year':-1, '_id.month':-1}},
+    {$limit:5}
+  ])
+
+ 
+
+  monthlyApplications = monthlyApplications.map((item)=>{
+    const {_id:{year, month}, count} = item
+    const date = moment().month(month-1).year(year).format('MMM Y')
+    return {date, count}
+  }).reverse()
+  
+res
+.status(StatusCodes.OK)
+.json({defaultStats, monthlyApplications})
+
+}
 
 module.exports = {
   createJob,
@@ -112,4 +161,5 @@ module.exports = {
   getAllJobs,
   updateJob,
   getJob,
+  getStats,
 }

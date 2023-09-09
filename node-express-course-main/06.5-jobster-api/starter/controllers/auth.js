@@ -11,8 +11,9 @@ const register = async (req, res) => {
 const updateUser = async (req, res) => {
   //const user = await User.findOneAndUpdate({email:req.body.email},{...req.body})
   //res.status(StatusCodes.ACCEPTED).json({user:{name:user.name, lastname:user.lastname}})
+ 
   const {email, name, lastName, location}  = req.body;
-  console.log(email, name, lastName, location);
+  
   if (!email || !name || !lastName || !location){
     throw new error.BadRequestError('missing value')
   }
