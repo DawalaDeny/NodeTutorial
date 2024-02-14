@@ -13,7 +13,7 @@ const errorHandlerMiddleware = require('./middleware/error-handler');
 app.use(express.json());
 app.use(express.static('./public'));
 
-// stripe
+// stripee
 app.post('/stripe', stripeController)
 
 app.use(notFoundMiddleware);
