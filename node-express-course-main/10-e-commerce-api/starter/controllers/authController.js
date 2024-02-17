@@ -1,7 +1,6 @@
-const user = require ('../models/user')
 const {StatusCodes} = require('http-status-codes')
 const CustomError = require('../errors/index')
-const {attachCookiesToResponse} = require('../utils/index')
+const {attachCookiesToResponse, createTokenUser} = require('../utils/index')
 const User = require('../models/user')
 
 
@@ -13,7 +12,7 @@ const register = async (req, res) =>{
         throw new CustomError.BadRequestError("Email already exists")
     }
     const newUser = await User.create({name, email, password})
-    const tokenUser = {name:newUser.name, userId:newUser._id, role:newUser.role}
+    const tokenUser = createTokenUser(newUser);
     //const token = jwt.sign(tokenUser, 'jwtsecret', {expiresIn: '1d'})
     attachCookiesToResponse({res, user:tokenUser})
     
@@ -34,7 +33,7 @@ const login = async (req, res) =>{
     if(!isPasswordCorrect){
         throw new CustomError.UnauthenticatedError("Invalid credentials");
     }
-    const tokenUser = {name:user.name, userId:user._id, role:user.role}
+    const tokenUser = createTokenUser(user);
     
     attachCookiesToResponse({res, user:tokenUser})
     res.status(StatusCodes.CREATED).json({user: tokenUser, })

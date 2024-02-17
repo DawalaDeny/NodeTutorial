@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
         validator: valid.isEmail,
         message: 'provide a valid email'
     }, unique: true},
-    password:{ type:String, require: [true, 'Please provide a password'], minlength:7, maxlength: 50},
+    password:{ type:String, require: [true, 'Please provide a password'], minlength:7, maxlength: 100},
     role:{
         type:String,
         enum:['admin', 'user'],
@@ -18,8 +18,16 @@ const userSchema = new mongoose.Schema({
 })
 
 userSchema.pre('save', async function(){
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt)
+    //console.log(this.modifiedPaths());
+    //console.log(this.isModified('name'));
+    
+    //zodat enkel hashen van wachtwoorden gebeurt wnr je wachtwoord aanpast
+    if (!this.isModified('password')){
+        return
+    }else{
+        const salt = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password, salt)
+    }
 })
 
 userSchema.methods.comparePassword = async function (canditatePassword){
